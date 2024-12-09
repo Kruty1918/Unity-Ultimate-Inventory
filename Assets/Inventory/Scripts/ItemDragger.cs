@@ -38,6 +38,7 @@ namespace cdvproject.UI
             itemContainer.SetRaycastTarget(true);
             transform.SetParent(parentAfterDrag);
             ResetPosition();
+            SM.Instance<Inventory>().SaveInventory();
         }
 
         public void SetParentAfterDrag(Transform transform)

@@ -1,167 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 using SGS29.Utilities;
 
 namespace cdvproject.UI
 {
-    public interface ISlotManager
-    {
-        void Initialize();
-        void AddSlot(InventorySlot slot);
-        InventorySlot GetEmptySlot();
-        void ClearSlots();
-        List<InventorySlot> GetSlots();
-    }
-
-    public interface IItemManager
-    {
-        void AddItem(GameItem item);
-        void RemoveItem(ItemContainer item);
-        List<ItemContainer> GetItems();
-    }
-
-    public interface IInventoryPersistence
-    {
-        void Save(List<ItemContainer> items);
-        List<ItemData> Load();
-    }
-
-    public class SlotManager : ISlotManager
-    {
-        private List<InventorySlot> slots = new List<InventorySlot>();
-        private Transform parent;
-        private bool useFixedSlots;
-        private ISlotCreationStrategy creationStrategy;
-
-        public SlotManager(Transform parent, ISlotCreationStrategy creationStrategy, bool useFixedSlots)
-        {
-            this.parent = parent;
-            this.useFixedSlots = useFixedSlots;
-            this.creationStrategy = creationStrategy;
-        }
-
-        public void AddSlot(InventorySlot slot)
-        {
-            slots.Add(slot);
-        }
-
-        public InventorySlot GetEmptySlot()
-        {
-            foreach (var slot in slots)
-            {
-                if (slot.IsEmpty())
-                {
-                    return slot;
-                }
-            }
-            return null;
-        }
-
-        public void ClearSlots()
-        {
-            foreach (var slot in parent.GetComponentsInChildren<InventorySlot>())
-            {
-                Object.Destroy(slot.gameObject);
-            }
-            slots.Clear();
-        }
-
-        public List<InventorySlot> GetSlots() => slots;
-
-        public void Initialize()
-        {
-            if (useFixedSlots)
-            {
-                ClearSlots();
-                creationStrategy.CreateSlots();
-            }
-            else
-            {
-                slots.AddRange(parent.GetComponentsInChildren<InventorySlot>());
-            }
-        }
-    }
-
-    public class ItemManager : IItemManager
-    {
-        private List<ItemContainer> items = new List<ItemContainer>();
-        private ISlotManager slotManager;
-        private ItemContainer containerPrefab;
-
-        public ItemManager(ISlotManager slotManager, ItemContainer containerPrefab)
-        {
-            this.slotManager = slotManager;
-            this.containerPrefab = containerPrefab;
-        }
-
-        public void AddItem(GameItem item)
-        {
-            foreach (var itemContainer in items)
-            {
-                if (itemContainer.CompareName(item.ItemName))
-                {
-                    itemContainer.AddStack(1);
-                    return;
-                }
-            }
-
-            InventorySlot emptySlot = slotManager.GetEmptySlot();
-            if (emptySlot == null)
-            {
-                Debug.LogError("No empty slots available.");
-                return;
-            }
-
-            ItemContainer newContainer = Object.Instantiate(containerPrefab, emptySlot.transform);
-            newContainer.InitializeItem(item, 1);
-            items.Add(newContainer);
-        }
-
-        public void RemoveItem(ItemContainer item)
-        {
-            items.Remove(item);
-            Object.Destroy(item.gameObject);
-        }
-
-        public List<ItemContainer> GetItems() => items;
-    }
-
-    public class InventoryPersistence : IInventoryPersistence
-    {
-        private const string INVENTORY_SAVE_PATH = "InventorySaveData";
-
-        public void Save(List<ItemContainer> items)
-        {
-            InventorySaveData saveData = ScriptableObject.CreateInstance<InventorySaveData>();
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                saveData.AddItemData(items[i].GetItemData(i));
-            }
-
-            string savePath = "Assets/Resources/InventorySaveData.asset";
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.CreateAsset(saveData, savePath);
-            UnityEditor.AssetDatabase.SaveAssets();
-#else
-            Debug.LogError("Asset creation is not supported outside the Unity Editor.");
-#endif
-        }
-
-        public List<ItemData> Load()
-        {
-            InventorySaveData saveData = Resources.Load<InventorySaveData>(INVENTORY_SAVE_PATH);
-
-            if (saveData == null)
-            {
-                Debug.LogWarning("No save data found.");
-                return new List<ItemData>();
-            }
-
-            return saveData.Items;
-        }
-    }
-
     public class Inventory : MonoSingleton<Inventory>
     {
         [SerializeField] private InventorySlot slotPrefab;
@@ -200,24 +41,61 @@ namespace cdvproject.UI
 
         public void AddItem(GameItem item)
         {
+            if (item == null)
+            {
+                Debug.LogError("Cannot add a null item to the inventory.");
+                return;
+            }
+
             itemManager.AddItem(item);
             SaveInventory();
         }
 
         public void RemoveItem(ItemContainer item)
         {
+            if (item == null)
+            {
+                Debug.LogError("Cannot remove a null item from the inventory.");
+                return;
+            }
+
             itemManager.RemoveItem(item);
             SaveInventory();
         }
 
         public void AddSlot(InventorySlot slot)
         {
+            if (slot == null)
+            {
+                Debug.LogError("Cannot add a null slot to the inventory.");
+                return;
+            }
+
             slotManager.AddSlot(slot);
         }
 
         public void SaveInventory()
         {
-            persistence.Save(itemManager.GetItems());
+            try
+            {
+                persistence.Save(itemManager.GetItems());
+                Debug.Log("Inventory successfully saved.");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"Failed to save inventory: {ex.Message}");
+            }
+        }
+
+        public int SlotIndexOf(InventorySlot slot)
+        {
+            if (slot == null)
+            {
+                Debug.LogError("Cannot retrieve index of a null slot.");
+                return -1;
+            }
+
+            return slotManager.SlotIndexOf(slot);
         }
 
         private void LoadInventory()
@@ -228,16 +106,22 @@ namespace cdvproject.UI
             }
 
             var itemsData = persistence.Load();
+            if (itemsData == null || itemsData.Count == 0)
+            {
+                Debug.LogWarning("No saved inventory data found.");
+                return;
+            }
+
             foreach (var itemData in itemsData)
             {
                 GameItem gameItem = Resources.Load<GameItem>($"GameItems/{itemData.ItemName}");
                 if (gameItem != null)
                 {
-                    AddItem(gameItem);
+                    itemManager.AddItem(gameItem);
                 }
                 else
                 {
-                    Debug.LogError($"Item '{itemData.ItemName}' not found.");
+                    Debug.LogError($"Item '{itemData.ItemName}' not found in Resources.");
                 }
             }
         }

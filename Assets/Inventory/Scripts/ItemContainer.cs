@@ -1,3 +1,4 @@
+using SGS29.Utilities;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -63,9 +64,15 @@ namespace cdvproject.UI
         /// </summary>
         /// <param name="slotIndex">Індекс слоту, до якого прив'язаний контейнер.</param>
         /// <returns>ItemData, що містить інформацію про предмет.</returns>
-        public ItemData GetItemData(int slotIndex)
+        public ItemData GetItemData()
         {
-            return new ItemData(item.ItemName, quantity, slotIndex);
+            return new ItemData(item.ItemName, quantity, GetSlotIndex());
+        }
+
+        private int GetSlotIndex()
+        {
+            InventorySlot slot = transform.parent.GetComponent<InventorySlot>();
+            return SM.Instance<Inventory>().SlotIndexOf(slot);
         }
     }
 }

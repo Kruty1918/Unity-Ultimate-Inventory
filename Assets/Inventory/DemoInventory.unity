@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2471,38 +2470,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RenderShadows: 1
-  m_RequiresDepthTextureOption: 2
-  m_RequiresOpaqueTextureOption: 2
-  m_CameraType: 0
-  m_Cameras: []
-  m_RendererIndex: -1
-  m_VolumeLayerMask:
-    serializedVersion: 2
-    m_Bits: 1
-  m_VolumeTrigger: {fileID: 0}
-  m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
-  m_Antialiasing: 0
-  m_AntialiasingQuality: 2
-  m_StopNaN: 0
-  m_Dithering: 0
-  m_ClearDepth: 1
-  m_AllowXRRendering: 1
-  m_AllowHDROutput: 1
-  m_UseScreenCoordOverride: 0
-  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
-  m_RequiresDepthTexture: 0
-  m_RequiresColorTexture: 0
-  m_Version: 2
-  m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
 --- !u!81 &1967372716
 AudioListener:
   m_ObjectHideFlags: 0
@@ -2724,12 +2691,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   items:
-  - {fileID: 11400000, guid: 1a638a87af9c9fb4f8bb47e11d4c03a9, type: 2}
-  - {fileID: 11400000, guid: f3b9d04d11dcae148b728e4ee13dad38, type: 2}
-  - {fileID: 11400000, guid: 01f2271421a257d43808098ab0266675, type: 2}
-  - {fileID: 11400000, guid: 55fa91f84d447244d9e4d2b45a4a4fae, type: 2}
-  - {fileID: 11400000, guid: e8dccb9859f25e24bb8fa0b1ce88e0e4, type: 2}
-  - {fileID: 11400000, guid: 6e469ca91ceef0941a3985c894a8b567, type: 2}
+  - {fileID: 11400000, guid: 267319f67652bf64fa365c1dca34950e, type: 2}
+  - {fileID: 11400000, guid: 22dc39eb0a8dc7044a53ca2e657f4bfc, type: 2}
+  - {fileID: 11400000, guid: 31bf4045f3899484098f23e1693cc4d7, type: 2}
+  - {fileID: 11400000, guid: 9063e146d7c14f4499bcad3a3bd9ab10, type: 2}
+  - {fileID: 11400000, guid: 6ed46ff2eff55074899a8385047026dd, type: 2}
+  - {fileID: 11400000, guid: 280404853240ade4494a18018f1d1664, type: 2}
 --- !u!1 &2020116446
 GameObject:
   m_ObjectHideFlags: 0
